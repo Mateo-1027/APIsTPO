@@ -1,4 +1,4 @@
-package com._d.marketplace;
+package com._3d.marketplace;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

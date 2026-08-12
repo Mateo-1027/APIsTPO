@@ -1,4 +1,4 @@
-package com._d.marketplace;
+package com._3d.marketplace;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
