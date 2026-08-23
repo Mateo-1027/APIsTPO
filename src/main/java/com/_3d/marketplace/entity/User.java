@@ -7,6 +7,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Table(name = "users")
 public class User {
 
     @Id
@@ -16,9 +17,16 @@ public class User {
     @Column
     private String name;
 
-    @Column String email;
+    @Column
+    private String surname;
+
+    @Column
+    private String email;
 
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
+    @ManyToMany
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 }

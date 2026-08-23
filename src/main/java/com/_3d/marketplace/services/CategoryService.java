@@ -1,23 +1,18 @@
 package com._3d.marketplace.services;
 
 import com._3d.marketplace.entity.Category;
-import com._3d.marketplace.repositories.CategoryRepository;
+import com._3d.marketplace.exceptions.CategoryDuplicateException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
+import java.util.Optional;
 
-public class CategoryService {
+public interface CategoryService {
 
-    private final CategoryRepository categoryRepository = new CategoryRepository();
+    public Page<Category> getCategories(PageRequest pageRequest);
 
-    public List<Category> getCategories() {
-        return categoryRepository.getAll();
-    }
+    public Optional<Category> getCategoryById(Long categoryId);
 
-    public Category getCategoryById(int categoryId) {
-        return categoryRepository.getById(categoryId);
-    }
+    public Category createCategory(String description) throws CategoryDuplicateException;
 
-    public Category createCategory(Category category) {
-        return categoryRepository.save(category);
-    }
 }

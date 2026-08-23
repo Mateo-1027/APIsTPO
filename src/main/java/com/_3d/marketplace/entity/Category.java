@@ -1,14 +1,27 @@
 package com._3d.marketplace.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-
+@Entity
+@Table(name = "categories")
 public class Category {
 
-    private int id;
-    private String name;
+    public Category() {
+    }
+
+    public Category(String description) {
+        this.description = description;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
+    private String description;
+
+    @OneToOne(mappedBy = "category")
+    private Product product;
 }
