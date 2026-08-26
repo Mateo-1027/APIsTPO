@@ -5,31 +5,28 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
-
 @Entity
 @Data
-@Table(name = "orders")
-public class Order {
+@Table(name = "item_carts")
+public class ItemCart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDateTime date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(nullable = false)
-    private Double total;
+    private Integer quantity;
+
+    @Column(nullable = false)
+    private Double subtotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "cart_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private User user;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items = new ArrayList<>();
+    private Cart cart;
 }

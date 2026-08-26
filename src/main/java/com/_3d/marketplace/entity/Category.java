@@ -2,6 +2,10 @@ package com._3d.marketplace.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -22,6 +26,8 @@ public class Category {
     @Column
     private String description;
 
-    @OneToOne(mappedBy = "category")
-    private Product product;
+    @OneToMany(mappedBy = "category")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Product> products;
 }

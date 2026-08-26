@@ -1,0 +1,68 @@
+package com._3d.marketplace.controllers;
+
+import com._3d.marketplace.entity.dto.ProductRequest;
+import com._3d.marketplace.entity.dto.ProductResponse;
+import com._3d.marketplace.services.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping
+    public ResponseEntity<Page<ProductResponse>> getProducts(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Page<ProductResponse> products;
+        if (categoryId != null) {
+            products = productService.getProductsByCategory(categoryId, PageRequest.of(page, size));
+        } else if (minPrice != null && maxPrice != null) {
+            products = productService.getProductsByPriceRange(minPrice, maxPrice, PageRequest.of(page, size));
+        } else {
+            products = productService.getAllProducts(PageRequest.of(page, size));
+        }
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
+        return ResponseEntity.ok(productService.createProduct(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
+        return ResponseEntity.ok(productService.updateProduct(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ProductResponse> updateStock(@PathVariable Long id, @RequestParam Integer quantity) {
+        return ResponseEntity.ok(productService.updateStock(id, quantity));
+    }
+
+    @PatchMapping("/{id}/discount")
+    public ResponseEntity<ProductResponse> applyDiscount(@PathVariable Long id, @RequestParam Double discount) {
+        return ResponseEntity.ok(productService.applyDiscount(id, discount));
+    }
+}
