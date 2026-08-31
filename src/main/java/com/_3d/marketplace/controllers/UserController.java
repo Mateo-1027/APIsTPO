@@ -1,5 +1,6 @@
 package com._3d.marketplace.controllers;
 
+import com._3d.marketplace.entity.Role;
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,9 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(user));
     }
 
-    @PostMapping("/{userId}/roles/{roleId}")
-    public ResponseEntity<Void> assignRole(@PathVariable Long userId, @PathVariable Long roleId) {
-        userService.assignRole(userId, roleId);
+    @PostMapping("/{userId}/roles/{role}")
+    public ResponseEntity<Void> assignRole(@PathVariable Long userId, @PathVariable Role role) {
+        userService.assignRole(userId, role);
         return ResponseEntity.ok().build();
     }
 }

@@ -3,7 +3,6 @@ package com._3d.marketplace.services;
 import com._3d.marketplace.entity.Role;
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.exceptions.UserNotFoundException;
-import com._3d.marketplace.repositories.RoleRepository;
 import com._3d.marketplace.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +13,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-    
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Override
     public User findByUsername(String username) {
@@ -38,10 +34,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void assignRole(Long userId, Long roleId) {
+    public void assignRole(Long userId, Role role) {
         User user = findById(userId);
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("El rol no existe"));
         user.getRoles().add(role);
         userRepository.save(user);
     }
