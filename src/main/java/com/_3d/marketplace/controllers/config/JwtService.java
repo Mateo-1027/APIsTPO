@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
+//import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecretKeyBuilder;
 

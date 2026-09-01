@@ -16,6 +16,8 @@ import com._3d.marketplace.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -26,11 +28,11 @@ public class AuthenticationService {
 
         public AuthenticationResponse register(RegisterRequest request) {
                 var user = User.builder()
-                                .firstName(request.getFirstname())
-                                .lastName(request.getLastname())
+                                .name(request.getFirstname())
+                                .surname(request.getLastname())
                                 .email(request.getEmail())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .role(request.getRole())
+                                .roles(Collections.singleton(request.getRole()))
                                 .build();
 
                 repository.save(user);
