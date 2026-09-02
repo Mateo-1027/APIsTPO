@@ -43,9 +43,7 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    /**
-     * Devuelve los productos publicados por el vendedor autenticado ("mis publicaciones").
-     */
+
     @GetMapping("/mine")
     public ResponseEntity<Page<ProductResponse>> getMyProducts(
             @AuthenticationPrincipal User user,
@@ -54,10 +52,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsBySeller(user.getId(), PageRequest.of(page, size)));
     }
 
-    /**
-     * Tasación: estima un precio de referencia a partir del material, los gramos usados,
-     * las horas de impresión y un margen de ganancia. Es una ayuda opcional para el vendedor.
-     */
+
     @PostMapping("/estimate-price")
     public ResponseEntity<PriceEstimateResponse> estimatePrice(@RequestBody PriceEstimateRequest request) {
         return ResponseEntity.ok(pricingService.estimatePrice(request));
