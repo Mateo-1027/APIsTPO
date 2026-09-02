@@ -10,9 +10,13 @@ import com._3d.marketplace.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("products")
@@ -94,5 +98,15 @@ public class ProductController {
     @PatchMapping("/{id}/discount")
     public ResponseEntity<ProductResponse> applyDiscount(@PathVariable Long id, @RequestParam Double discount) {
         return ResponseEntity.ok(productService.applyDiscount(id, discount));
+    }
+
+    @PostMapping(value = "/{productId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> uploadProductImage(
+            @PathVariable Long productId,
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal User user) throws IOException {
+
+        ProductResponse response = productService.addImageToProduct(productId, file, user);
+        return ResponseEntity.ok(response);
     }
 }

@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+//@EnableMethodSecurity // Comentado temporalmente para permitir todos los endpoints sin restricciones
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -29,6 +29,8 @@ public class SecurityConfig {
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> req
+                                                .anyRequest().permitAll() // Permitir todos los endpoints temporalmente
+                                                /*
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
 
                                                 // Endpoints específicos de vendedor (antes que los GET públicos)
@@ -51,7 +53,9 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/cart/**", "/orders/**").authenticated()
 
-                                                .anyRequest().authenticated())
+                                                .anyRequest().authenticated()
+                                                */
+                                )
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

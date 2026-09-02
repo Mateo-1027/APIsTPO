@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +28,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
-
+    
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Override
     public Page<ProductResponse> getAllProducts(Pageable pageable) {
@@ -167,5 +172,25 @@ public class ProductServiceImpl implements ProductService {
                 product.getImages().add(img);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse addImageToProduct(Long productId, MultipartFile file, User user) throws IOException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado"));
+
+        checkOwnership(product, user);
+
+        String imageUrl = cloudinaryService.uploadFile(file);
+
+        ProductImage productImage = new ProductImage();
+        productImage.setUrl(imageUrl);
+        productImage.setProduct(product);
+
+        product.getImages().add(productImage);
+        productRepository.save(product);
+
+        return mapToResponse(product);
     }
 }

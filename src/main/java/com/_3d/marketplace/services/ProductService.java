@@ -17,4 +17,5 @@ public interface ProductService {
     void deleteProduct(Long id, User user);
     ProductResponse updateStock(Long id, Integer quantity);
     ProductResponse applyDiscount(Long id, Double discount);
+    ProductResponse addImageToProduct(Long productId, org.springframework.web.multipart.MultipartFile file, User user) throws java.io.IOException;
 }
