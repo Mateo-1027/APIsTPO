@@ -34,12 +34,17 @@ public class AuthenticationService {
                                         "Ya existe un usuario registrado con el email: " + request.getEmail());
                 }
 
+                // El usuario puede elegir USER o VENDOR. Cualquier otro valor
+                // (incluido ADMIN o null) se fuerza a USER por seguridad.
+                Role requestedRole = request.getRole();
+                Role assignedRole = (requestedRole == Role.VENDOR) ? Role.VENDOR : Role.USER;
+
                 var user = User.builder()
                                 .name(request.getFirstname())
                                 .surname(request.getLastname())
                                 .email(request.getEmail())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .roles(Collections.singleton(Role.USER))
+                                .roles(Collections.singleton(assignedRole))
                                 .build();
 
                 repository.save(user);

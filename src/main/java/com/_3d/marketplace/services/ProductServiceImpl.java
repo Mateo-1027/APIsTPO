@@ -3,8 +3,11 @@ package com._3d.marketplace.services;
 import com._3d.marketplace.entity.Category;
 import com._3d.marketplace.entity.Product;
 import com._3d.marketplace.entity.ProductImage;
+import com._3d.marketplace.entity.Role;
+import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.ProductRequest;
 import com._3d.marketplace.entity.dto.ProductResponse;
+import com._3d.marketplace.exceptions.ForbiddenOperationException;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.repositories.CategoryRepository;
 import com._3d.marketplace.repositories.ProductRepository;
@@ -43,6 +46,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductResponse> getProductsBySeller(Long sellerId, Pageable pageable) {
+        return productRepository.findBySellerId(sellerId, pageable).map(this::mapToResponse);
+    }
+
+    @Override
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
@@ -51,29 +59,44 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse createProduct(ProductRequest request) {
+    public ProductResponse createProduct(ProductRequest request, User seller) {
         Product product = new Product();
         mapToEntity(request, product);
+        product.setSeller(seller);
         Product saved = productRepository.save(product);
         return mapToResponse(saved);
     }
 
     @Override
     @Transactional
-    public ProductResponse updateProduct(Long id, ProductRequest request) {
+    public ProductResponse updateProduct(Long id, ProductRequest request, User user) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+        checkOwnership(product, user);
         mapToEntity(request, product);
         return mapToResponse(productRepository.save(product));
     }
 
     @Override
     @Transactional
-    public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ProductNotFoundException("No se encontró el producto con el id: " + id);
+    public void deleteProduct(Long id, User user) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+        checkOwnership(product, user);
+        productRepository.delete(product);
+    }
+
+    /**
+     * Solo el vendedor que publicó el producto (o un ADMIN) puede modificarlo o borrarlo.
+     */
+    private void checkOwnership(Product product, User user) {
+        boolean isAdmin = user.getRoles().contains(Role.ADMIN);
+        boolean isOwner = product.getSeller() != null
+                && product.getSeller().getId().equals(user.getId());
+        if (!isAdmin && !isOwner) {
+            throw new ForbiddenOperationException(
+                    "No tenés permiso para modificar un producto que no publicaste.");
         }
-        productRepository.deleteById(id);
     }
 
     @Override
@@ -104,6 +127,10 @@ public class ProductServiceImpl implements ProductService {
         response.setDiscount(product.getDiscount());
         if (product.getCategory() != null) {
             response.setCategoryName(product.getCategory().getDescription());
+        }
+        if (product.getSeller() != null) {
+            response.setSellerId(product.getSeller().getId());
+            response.setSellerName(product.getSeller().getName());
         }
         if (product.getImages() != null) {
             response.setImageUrls(product.getImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()));

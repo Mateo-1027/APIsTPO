@@ -15,3 +15,13 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
 application.security.jwt.secretKey=GENERAR_UNA_CLAVE_DE_AL_MENOS_32_BYTES
 application.security.jwt.expiration=86400000
+
+# Admin inicial (seeder): se crea al arrancar si no existe
+app.admin.email=admin@marketplace.com
+app.admin.password=admin1234
+
+# Tasacion de productos (valores de referencia, ajustables)
+# Costo por hora de impresion (luz + desgaste de maquina)
+pricing.cost-per-hour=500.0
+# Margen de ganancia por defecto (%) si el vendedor no especifica uno
+pricing.default-margin=30.0

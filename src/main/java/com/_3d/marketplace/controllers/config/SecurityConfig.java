@@ -31,6 +31,12 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(req -> req
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
 
+                                                // Endpoints específicos de vendedor (antes que los GET públicos)
+                                                .requestMatchers(HttpMethod.GET, "/products/mine")
+                                                .hasAnyRole("ADMIN", "VENDOR")
+                                                .requestMatchers(HttpMethod.POST, "/products/estimate-price")
+                                                .hasAnyRole("ADMIN", "VENDOR")
+
                                                 .requestMatchers(HttpMethod.GET, "/products", "/products/**")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/categories", "/categories/**")
@@ -39,7 +45,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/products").hasAnyRole("ADMIN", "VENDOR")
                                                 .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "VENDOR")
                                                 .requestMatchers(HttpMethod.PATCH, "/products/**").hasAnyRole("ADMIN", "VENDOR")
-                                                .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("ADMIN", "VENDOR")
 
                                                 .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
 

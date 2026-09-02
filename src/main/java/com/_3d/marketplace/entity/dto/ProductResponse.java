@@ -13,4 +13,6 @@ public class ProductResponse {
     private Double discount;
     private String categoryName;
     private List<String> imageUrls;
+    private Long sellerId;
+    private String sellerName;
 }
