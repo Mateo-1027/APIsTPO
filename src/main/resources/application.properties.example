@@ -2,8 +2,8 @@ spring.application.name=marketplace
 
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce_3d
-spring.datasource.username=postgres
-spring.datasource.password=rootpassword
+spring.datasource.username=TU_USUARIO
+spring.datasource.password=TU_PASSWORD
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.hibernate.ddl-auto=update
@@ -13,5 +13,5 @@ spring.jpa.properties.hibernate.format_sql=true
 
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
-application.security.jwt.secretKey=${JWT_SECRET:f27a30cbb2a3c21f46111337c165cf19c99835d18844698a889986c0ddba948d}
+application.security.jwt.secretKey=GENERAR_UNA_CLAVE_DE_AL_MENOS_32_BYTES
 application.security.jwt.expiration=86400000

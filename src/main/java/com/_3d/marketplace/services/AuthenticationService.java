@@ -13,6 +13,7 @@ import com._3d.marketplace.controllers.auth.RegisterRequest;
 import com._3d.marketplace.controllers.config.JwtService;
 import com._3d.marketplace.entity.Role;
 import com._3d.marketplace.entity.User;
+import com._3d.marketplace.exceptions.EmailAlreadyUsedException;
 import com._3d.marketplace.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,11 @@ public class AuthenticationService {
         private final AuthenticationManager authenticationManager;
 
         public AuthenticationResponse register(RegisterRequest request) {
+                if (repository.findByEmail(request.getEmail()).isPresent()) {
+                        throw new EmailAlreadyUsedException(
+                                        "Ya existe un usuario registrado con el email: " + request.getEmail());
+                }
+
                 var user = User.builder()
                                 .name(request.getFirstname())
                                 .surname(request.getLastname())
