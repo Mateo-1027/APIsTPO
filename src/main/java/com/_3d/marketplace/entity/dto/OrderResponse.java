@@ -8,5 +8,5 @@ public class OrderResponse {
     private Long id;
     private LocalDateTime date;
     private Double total;
-    private String username;
+    private String email;
 }

@@ -15,21 +15,15 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario con el username: " + username));
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario con el email: " + email));
     }
 
     @Override
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario con el id: " + id));
-    }
-
-    @Override
-    @Transactional
-    public User createUser(User user) {
-        return userRepository.save(user);
     }
 
     @Override

@@ -6,7 +6,7 @@ import java.util.List;
 @Data
 public class CartResponse {
     private Long id;
-    private String username;
+    private String email;
     private List<CartItemResponse> items;
     private Double total;
 }

@@ -5,6 +5,7 @@ import com._3d.marketplace.entity.User;
 import com._3d.marketplace.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,17 +20,13 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(id));
     }
     
-    @GetMapping("/username/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        return ResponseEntity.ok(userService.findByUsername(username));
-    }
-
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(userService.findByEmail(email));
     }
 
     @PostMapping("/{userId}/roles/{role}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> assignRole(@PathVariable Long userId, @PathVariable Role role) {
         userService.assignRole(userId, role);
         return ResponseEntity.ok().build();

@@ -30,14 +30,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private UserService userService;
-
     @Override
     @Transactional
-    public OrderResponse checkout(String username) {
-        User user = userService.findByUsername(username);
-        Cart cart = cartService.getRawCartByUsername(username);
+    public OrderResponse checkout(User user) {
+        Cart cart = cartService.getRawCart(user);
 
         if (cart.getItems().isEmpty()) {
             throw new RuntimeException("El carrito está vacío");
@@ -76,14 +72,13 @@ public class OrderServiceImpl implements OrderService {
         order.setTotal(total);
         Order savedOrder = orderRepository.save(order);
         
-        cartService.clearCart(username);
+        cartService.clearCart(user);
 
         return mapToResponse(savedOrder);
     }
 
     @Override
-    public List<OrderResponse> getHistory(String username) {
-        User user = userService.findByUsername(username);
+    public List<OrderResponse> getHistory(User user) {
         return orderRepository.findByUserOrderByDateDesc(user)
                 .stream()
                 .map(this::mapToResponse)
@@ -95,7 +90,7 @@ public class OrderServiceImpl implements OrderService {
         response.setId(order.getId());
         response.setDate(order.getDate());
         response.setTotal(order.getTotal());
-        response.setUsername(order.getUser().getUsername());
+        response.setEmail(order.getUser().getEmail());
         return response;
     }
 }

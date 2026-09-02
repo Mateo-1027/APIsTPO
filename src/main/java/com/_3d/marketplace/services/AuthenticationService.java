@@ -11,6 +11,7 @@ import com._3d.marketplace.controllers.auth.AuthenticationRequest;
 import com._3d.marketplace.controllers.auth.AuthenticationResponse;
 import com._3d.marketplace.controllers.auth.RegisterRequest;
 import com._3d.marketplace.controllers.config.JwtService;
+import com._3d.marketplace.entity.Role;
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.repositories.UserRepository;
 
@@ -32,7 +33,7 @@ public class AuthenticationService {
                                 .surname(request.getLastname())
                                 .email(request.getEmail())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .roles(Collections.singleton(request.getRole()))
+                                .roles(Collections.singleton(Role.USER))
                                 .build();
 
                 repository.save(user);

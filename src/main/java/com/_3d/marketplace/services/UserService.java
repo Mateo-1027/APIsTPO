@@ -5,8 +5,7 @@ import com._3d.marketplace.entity.User;
 import java.util.List;
 
 public interface UserService {
-    User findByUsername(String username);
+    User findByEmail(String email);
     User findById(Long id);
-    User createUser(User user);
     void assignRole(Long userId, Role role);
 }

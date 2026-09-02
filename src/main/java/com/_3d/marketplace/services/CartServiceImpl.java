@@ -33,17 +33,13 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private UserService userService;
-
     @Override
-    public CartResponse getCartByUsername(String username) {
-        return mapToResponse(getRawCartByUsername(username));
+    public CartResponse getCart(User user) {
+        return mapToResponse(getRawCart(user));
     }
 
     @Override
-    public Cart getRawCartByUsername(String username) {
-        User user = userService.findByUsername(username);
+    public Cart getRawCart(User user) {
         return cartRepository.findByUser(user)
                 .orElseGet(() -> createCartForUser(user));
     }
@@ -57,8 +53,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse addItemToCart(String username, CartItemRequest request) {
-        Cart cart = getRawCartByUsername(username);
+    public CartResponse addItemToCart(User user, CartItemRequest request) {
+        Cart cart = getRawCart(user);
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("El producto no existe"));
 
@@ -93,15 +89,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse updateItemQuantity(String username, Long itemId, Integer quantity) {
-        Cart cart = getRawCartByUsername(username);
+    public CartResponse updateItemQuantity(User user, Long itemId, Integer quantity) {
+        Cart cart = getRawCart(user);
         ItemCart item = cart.getItems().stream()
                 .filter(i -> i.getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("El artículo no se encuentra en el carrito"));
 
         if (quantity <= 0) {
-            return removeItemFromCart(username, itemId);
+            return removeItemFromCart(user, itemId);
         }
 
         if (item.getProduct().getStock() < quantity) {
@@ -116,8 +112,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse removeItemFromCart(String username, Long itemId) {
-        Cart cart = getRawCartByUsername(username);
+    public CartResponse removeItemFromCart(User user, Long itemId) {
+        Cart cart = getRawCart(user);
         cart.getItems().removeIf(item -> item.getId().equals(itemId));
         recalculateTotal(cart);
         return mapToResponse(cartRepository.save(cart));
@@ -125,8 +121,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void clearCart(String username) {
-        Cart cart = getRawCartByUsername(username);
+    public void clearCart(User user) {
+        Cart cart = getRawCart(user);
         cart.getItems().clear();
         cart.setTotal(0.0);
         cartRepository.save(cart);
@@ -147,7 +143,7 @@ public class CartServiceImpl implements CartService {
     private CartResponse mapToResponse(Cart cart) {
         CartResponse response = new CartResponse();
         response.setId(cart.getId());
-        response.setUsername(cart.getUser().getUsername());
+        response.setEmail(cart.getUser().getEmail());
         response.setTotal(cart.getTotal());
 
         List<CartItemResponse> items = cart.getItems().stream().map(item -> {
