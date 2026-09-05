@@ -8,4 +8,6 @@ import java.util.List;
 public interface OrderService {
     OrderResponse checkout(User user);
     List<OrderResponse> getHistory(User user);
+    OrderResponse getOrderById(Long orderId, User user);
+    List<OrderResponse> getSales(User seller);
 }

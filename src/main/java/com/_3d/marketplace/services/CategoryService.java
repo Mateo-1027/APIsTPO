@@ -15,4 +15,7 @@ public interface CategoryService {
 
     public Category createCategory(String description) throws CategoryDuplicateException;
 
+    public Category updateCategory(Long categoryId, String description) throws CategoryDuplicateException;
+
+    public void deleteCategory(Long categoryId);
 }

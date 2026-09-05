@@ -16,12 +16,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ProductNotFoundException.class, UserNotFoundException.class, CartNotFoundException.class})
+    @ExceptionHandler({ProductNotFoundException.class, UserNotFoundException.class, CartNotFoundException.class,
+            OrderNotFoundException.class, CategoryNotFoundException.class})
     public ResponseEntity<Object> handleNotFound(RuntimeException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler({CategoryDuplicateException.class, EmailAlreadyUsedException.class, InsufficientStockException.class})
+    @ExceptionHandler({CategoryDuplicateException.class, EmailAlreadyUsedException.class, InsufficientStockException.class,
+            CategoryInUseException.class})
     public ResponseEntity<Object> handleConflict(Exception ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }

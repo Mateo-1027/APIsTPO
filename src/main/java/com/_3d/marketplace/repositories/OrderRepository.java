@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserOrderByDateDesc(User user);
+
+    List<Order> findDistinctByItems_Product_Seller_IdOrderByDateDesc(Long sellerId);
 }

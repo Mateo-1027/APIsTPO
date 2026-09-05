@@ -12,8 +12,10 @@ import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.repositories.CategoryRepository;
 import com._3d.marketplace.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,18 +38,25 @@ public class ProductServiceImpl implements ProductService {
     private CloudinaryService cloudinaryService;
 
     @Override
-    public Page<ProductResponse> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable).map(this::mapToResponse);
-    }
-
-    @Override
-    public Page<ProductResponse> getProductsByCategory(Long categoryId, Pageable pageable) {
-        return productRepository.findByCategoryId(categoryId, pageable).map(this::mapToResponse);
-    }
-
-    @Override
-    public Page<ProductResponse> getProductsByPriceRange(Double minPrice, Double maxPrice, Pageable pageable) {
-        return productRepository.findByPriceBetween(minPrice, maxPrice, pageable).map(this::mapToResponse);
+    public Page<ProductResponse> searchProducts(String name, Long categoryId, Double minPrice, Double maxPrice,
+            Pageable pageable) {
+        Specification<Product> spec = (root, query, cb) -> {
+            List<Predicate> filters = new ArrayList<>();
+            if (name != null && !name.isBlank()) {
+                filters.add(cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+            }
+            if (categoryId != null) {
+                filters.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+            if (minPrice != null) {
+                filters.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+            }
+            if (maxPrice != null) {
+                filters.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+            }
+            return cb.and(filters.toArray(new Predicate[0]));
+        };
+        return productRepository.findAll(spec, pageable).map(this::mapToResponse);
     }
 
     @Override
@@ -192,5 +201,21 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
 
         return mapToResponse(product);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse deleteProductImage(Long productId, Long imageId, User user) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + productId));
+
+        checkOwnership(product, user);
+
+        boolean removed = product.getImages().removeIf(image -> image.getId().equals(imageId));
+        if (!removed) {
+            throw new ProductNotFoundException("El producto no tiene una imagen con el id: " + imageId);
+        }
+
+        return mapToResponse(productRepository.save(product));
     }
 }

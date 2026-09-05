@@ -1,5 +1,6 @@
 package com._3d.marketplace.controllers;
 
+import com._3d.marketplace.entity.Material;
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.PriceEstimateRequest;
 import com._3d.marketplace.entity.dto.PriceEstimateResponse;
@@ -17,6 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("products")
@@ -30,21 +35,15 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getProducts(
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<ProductResponse> products;
-        if (categoryId != null) {
-            products = productService.getProductsByCategory(categoryId, PageRequest.of(page, size));
-        } else if (minPrice != null && maxPrice != null) {
-            products = productService.getProductsByPriceRange(minPrice, maxPrice, PageRequest.of(page, size));
-        } else {
-            products = productService.getAllProducts(PageRequest.of(page, size));
-        }
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(
+                productService.searchProducts(name, categoryId, minPrice, maxPrice, PageRequest.of(page, size)));
     }
 
 
@@ -56,6 +55,15 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsBySeller(user.getId(), PageRequest.of(page, size)));
     }
 
+
+    @GetMapping("/materials")
+    public ResponseEntity<List<Map<String, Object>>> getMaterials() {
+        return ResponseEntity.ok(Arrays.stream(Material.values())
+                .map(material -> Map.<String, Object>of(
+                        "name", material.name(),
+                        "pricePerKg", material.getPricePerKg()))
+                .collect(Collectors.toList()));
+    }
 
     @PostMapping("/estimate-price")
     public ResponseEntity<PriceEstimateResponse> estimatePrice(@RequestBody PriceEstimateRequest request) {
@@ -108,5 +116,13 @@ public class ProductController {
 
         ProductResponse response = productService.addImageToProduct(productId, file, user);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{productId}/images/{imageId}")
+    public ResponseEntity<ProductResponse> deleteProductImage(
+            @PathVariable Long productId,
+            @PathVariable Long imageId,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(productService.deleteProductImage(productId, imageId, user));
     }
 }

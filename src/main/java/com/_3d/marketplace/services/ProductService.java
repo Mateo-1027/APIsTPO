@@ -7,9 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
-    Page<ProductResponse> getAllProducts(Pageable pageable);
-    Page<ProductResponse> getProductsByCategory(Long categoryId, Pageable pageable);
-    Page<ProductResponse> getProductsByPriceRange(Double minPrice, Double maxPrice, Pageable pageable);
+    Page<ProductResponse> searchProducts(String name, Long categoryId, Double minPrice, Double maxPrice, Pageable pageable);
     Page<ProductResponse> getProductsBySeller(Long sellerId, Pageable pageable);
     ProductResponse getProductById(Long id);
     ProductResponse createProduct(ProductRequest request, User seller);
@@ -18,4 +16,5 @@ public interface ProductService {
     ProductResponse updateStock(Long id, Integer quantity);
     ProductResponse applyDiscount(Long id, Double discount);
     ProductResponse addImageToProduct(Long productId, org.springframework.web.multipart.MultipartFile file, User user) throws java.io.IOException;
+    ProductResponse deleteProductImage(Long productId, Long imageId, User user);
 }

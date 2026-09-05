@@ -47,4 +47,17 @@ public class CategoriesController {
         Category result = categoryService.createCategory(categoryRequest.getDescription());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
+
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<Category> updateCategory(
+            @PathVariable Long categoryId,
+            @RequestBody CategoryRequest categoryRequest) throws CategoryDuplicateException {
+        return ResponseEntity.ok(categoryService.updateCategory(categoryId, categoryRequest.getDescription()));
+    }
+
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long categoryId) {
+        categoryService.deleteCategory(categoryId);
+        return ResponseEntity.noContent().build();
+    }
 }

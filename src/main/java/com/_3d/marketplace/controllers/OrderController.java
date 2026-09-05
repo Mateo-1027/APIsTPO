@@ -26,4 +26,14 @@ public class OrderController {
     public ResponseEntity<List<OrderResponse>> getHistory(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(orderService.getHistory(user));
     }
+
+    @GetMapping("/sales")
+    public ResponseEntity<List<OrderResponse>> getSales(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(orderService.getSales(user));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getOrder(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderById(id, user));
+    }
 }
