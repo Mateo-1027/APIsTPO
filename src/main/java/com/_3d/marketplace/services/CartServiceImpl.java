@@ -55,6 +55,9 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CartResponse addItemToCart(User user, CartItemRequest request) {
         Cart cart = getRawCart(user);
+        if (request.getQuantity() == null || request.getQuantity() <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+        }
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("El producto no existe"));
 
@@ -94,7 +97,7 @@ public class CartServiceImpl implements CartService {
         ItemCart item = cart.getItems().stream()
                 .filter(i -> i.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("El artículo no se encuentra en el carrito"));
+                .orElseThrow(() -> new CartNotFoundException("El artículo no se encuentra en el carrito"));
 
         if (quantity <= 0) {
             return removeItemFromCart(user, itemId);

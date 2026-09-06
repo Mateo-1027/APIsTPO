@@ -8,6 +8,7 @@ import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.ProductRequest;
 import com._3d.marketplace.entity.dto.ProductResponse;
 import com._3d.marketplace.exceptions.ForbiddenOperationException;
+import com._3d.marketplace.exceptions.CategoryNotFoundException;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.repositories.CategoryRepository;
 import com._3d.marketplace.repositories.ProductRepository;
@@ -118,7 +119,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateStock(Long id, Integer quantity) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
-        product.setStock(product.getStock() + quantity);
+        int newStock = product.getStock() + quantity;
+        if (newStock < 0) {
+            throw new IllegalArgumentException("El stock no puede quedar negativo. Stock actual: " + product.getStock());
+        }
+        product.setStock(newStock);
         return mapToResponse(productRepository.save(product));
     }
 
@@ -127,6 +132,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse applyDiscount(Long id, Double discount) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+        validateDiscount(discount);
         product.setDiscount(discount);
         return mapToResponse(productRepository.save(product));
     }
@@ -154,17 +160,33 @@ public class ProductServiceImpl implements ProductService {
         return response;
     }
 
+    private void validateDiscount(Double discount) {
+        if (discount == null || discount < 0 || discount > 100) {
+            throw new IllegalArgumentException("El descuento debe estar entre 0 y 100.");
+        }
+    }
+
     private void mapToEntity(ProductRequest request, Product product) {
+        if (request.getName() == null || request.getName().isBlank()) {
+            throw new IllegalArgumentException("El nombre del producto es obligatorio.");
+        }
+        if (request.getPrice() == null || request.getPrice() < 0) {
+            throw new IllegalArgumentException("El precio no puede ser negativo.");
+        }
+        if (request.getStock() == null || request.getStock() < 0) {
+            throw new IllegalArgumentException("El stock no puede ser negativo.");
+        }
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         if (request.getDiscount() != null) {
+            validateDiscount(request.getDiscount());
             product.setDiscount(request.getDiscount());
         }
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("La categoría no existe"));
+                    .orElseThrow(() -> new CategoryNotFoundException("La categoría no existe: " + request.getCategoryId()));
             product.setCategory(category);
         }
         

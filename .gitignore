@@ -34,3 +34,6 @@ build/
 
 ### Config local con credenciales
 src/main/resources/application.properties
+
+application.properties
+

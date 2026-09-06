@@ -1,7 +1,7 @@
 package com._3d.marketplace.controllers;
 
-import com._3d.marketplace.entity.Category;
 import com._3d.marketplace.entity.dto.CategoryRequest;
+import com._3d.marketplace.entity.dto.CategoryResponse;
 import com._3d.marketplace.exceptions.CategoryDuplicateException;
 import com._3d.marketplace.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class CategoriesController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<Page<Category>> getCategories(
+    public ResponseEntity<Page<CategoryResponse>> getCategories(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         if (page == null || size == null)
@@ -33,8 +33,8 @@ public class CategoriesController {
 
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId) {
-        Optional<Category> result = categoryService.getCategoryById(categoryId);
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long categoryId) {
+        Optional<CategoryResponse> result = categoryService.getCategoryById(categoryId);
         if (result.isPresent())
             return ResponseEntity.ok(result.get());
 
@@ -42,14 +42,14 @@ public class CategoriesController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createCategory(@RequestBody CategoryRequest categoryRequest)
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest categoryRequest)
             throws CategoryDuplicateException {
-        Category result = categoryService.createCategory(categoryRequest.getDescription());
+        CategoryResponse result = categoryService.createCategory(categoryRequest.getDescription());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Category> updateCategory(
+    public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long categoryId,
             @RequestBody CategoryRequest categoryRequest) throws CategoryDuplicateException {
         return ResponseEntity.ok(categoryService.updateCategory(categoryId, categoryRequest.getDescription()));

@@ -1,6 +1,6 @@
 package com._3d.marketplace.services;
 
-import com._3d.marketplace.entity.Category;
+import com._3d.marketplace.entity.dto.CategoryResponse;
 import com._3d.marketplace.exceptions.CategoryDuplicateException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,13 +9,13 @@ import java.util.Optional;
 
 public interface CategoryService {
 
-    public Page<Category> getCategories(PageRequest pageRequest);
+    public Page<CategoryResponse> getCategories(PageRequest pageRequest);
 
-    public Optional<Category> getCategoryById(Long categoryId);
+    public Optional<CategoryResponse> getCategoryById(Long categoryId);
 
-    public Category createCategory(String description) throws CategoryDuplicateException;
+    public CategoryResponse createCategory(String description) throws CategoryDuplicateException;
 
-    public Category updateCategory(Long categoryId, String description) throws CategoryDuplicateException;
+    public CategoryResponse updateCategory(Long categoryId, String description) throws CategoryDuplicateException;
 
     public void deleteCategory(Long categoryId);
 }

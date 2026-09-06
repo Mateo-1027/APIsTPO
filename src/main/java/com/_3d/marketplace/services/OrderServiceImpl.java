@@ -10,6 +10,7 @@ import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.OrderItemResponse;
 import com._3d.marketplace.entity.dto.OrderResponse;
 import com._3d.marketplace.exceptions.ForbiddenOperationException;
+import com._3d.marketplace.exceptions.EmptyCartException;
 import com._3d.marketplace.exceptions.InsufficientStockException;
 import com._3d.marketplace.exceptions.OrderNotFoundException;
 import com._3d.marketplace.repositories.OrderRepository;
@@ -40,7 +41,7 @@ public class OrderServiceImpl implements OrderService {
         Cart cart = cartService.getRawCart(user);
 
         if (cart.getItems().isEmpty()) {
-            throw new RuntimeException("El carrito está vacío");
+            throw new EmptyCartException("El carrito está vacío");
         }
 
         Order order = new Order();
@@ -146,5 +147,4 @@ public class OrderServiceImpl implements OrderService {
         response.setUnitPrice(item.getUnitPrice());
         response.setSubtotal(item.getSubtotal());
         return response;
-    }
-}
+    }}

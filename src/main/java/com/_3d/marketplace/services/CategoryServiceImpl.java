@@ -1,6 +1,7 @@
 package com._3d.marketplace.services;
 
 import com._3d.marketplace.entity.Category;
+import com._3d.marketplace.entity.dto.CategoryResponse;
 
 import com._3d.marketplace.exceptions.CategoryDuplicateException;
 import com._3d.marketplace.exceptions.CategoryInUseException;
@@ -22,23 +23,23 @@ public class CategoryServiceImpl implements CategoryService{
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public Page<Category> getCategories(PageRequest pageable) {
-        return categoryRepository.findAll(pageable);
+    public Page<CategoryResponse> getCategories(PageRequest pageable) {
+        return categoryRepository.findAll(pageable).map(CategoryResponse::from);
     }
 
-    public Optional<Category> getCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId);
+    public Optional<CategoryResponse> getCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId).map(CategoryResponse::from);
     }
 
-    public Category createCategory(String description) throws CategoryDuplicateException {
+    public CategoryResponse createCategory(String description) throws CategoryDuplicateException {
         List<Category> categories = categoryRepository.findByDescription(description);
         if(categories.isEmpty())
-            return categoryRepository.save(new Category(description));
+            return CategoryResponse.from(categoryRepository.save(new Category(description)));
         throw new CategoryDuplicateException();
     }
 
     @Transactional
-    public Category updateCategory(Long categoryId, String description) throws CategoryDuplicateException {
+    public CategoryResponse updateCategory(Long categoryId, String description) throws CategoryDuplicateException {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("No se encontró la categoría con el id: " + categoryId));
 
@@ -48,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService{
             throw new CategoryDuplicateException();
 
         category.setDescription(description);
-        return categoryRepository.save(category);
+        return CategoryResponse.from(categoryRepository.save(category));
     }
 
     @Transactional

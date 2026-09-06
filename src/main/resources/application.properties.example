@@ -25,3 +25,8 @@ app.admin.password=admin1234
 pricing.cost-per-hour=500.0
 # Margen de ganancia por defecto (%) si el vendedor no especifica uno
 pricing.default-margin=30.0
+
+# Cloudinary (subida de imagenes de productos)
+cloudinary.cloud_name=
+cloudinary.api_key=
+cloudinary.api_secret=
