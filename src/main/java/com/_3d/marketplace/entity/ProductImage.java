@@ -16,6 +16,8 @@ public class ProductImage {
     @Column(nullable = false)
     private String url;
 
+    private String publicId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     @ToString.Exclude

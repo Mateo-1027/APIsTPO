@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -191,6 +192,9 @@ public class ProductServiceImpl implements ProductService {
             if (product.getImages() == null) {
                 product.setImages(new ArrayList<>());
             } else {
+                // ponytail: reemplazar imageUrls por PUT sigue dejando el asset en Cloudinary.
+                // Borrarlo aca es riesgoso (el cliente suele reenviar las mismas URLs y las
+                // recrea sin publicId). Si molesta, mover la carga de imagenes a su propio endpoint.
                 product.getImages().clear();
             }
             for (String url : request.getImageUrls()) {
@@ -208,10 +212,11 @@ public class ProductServiceImpl implements ProductService {
 
         checkOwnership(product, user);
 
-        String imageUrl = cloudinaryService.uploadFile(file);
+        Map<?, ?> uploaded = cloudinaryService.uploadFile(file);
 
         ProductImage productImage = new ProductImage();
-        productImage.setUrl(imageUrl);
+        productImage.setUrl(uploaded.get("secure_url").toString());
+        productImage.setPublicId(uploaded.get("public_id").toString());
         productImage.setProduct(product);
 
         product.getImages().add(productImage);
@@ -226,11 +231,18 @@ public class ProductServiceImpl implements ProductService {
 
         checkOwnership(product, user);
 
-        boolean removed = product.getImages().removeIf(image -> image.getId().equals(imageId));
-        if (!removed) {
-            throw new ProductNotFoundException("El producto no tiene una imagen con el id: " + imageId);
-        }
+        ProductImage image = product.getImages().stream()
+                .filter(i -> i.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new ProductNotFoundException(
+                        "El producto no tiene una imagen con el id: " + imageId));
 
-        return mapToResponse(productRepository.save(product));
+        product.getImages().remove(image);
+        ProductResponse response = mapToResponse(productRepository.save(product));
+
+        if (image.getPublicId() != null) {
+            cloudinaryService.delete(image.getPublicId());
+        }
+        return response;
     }
 }
