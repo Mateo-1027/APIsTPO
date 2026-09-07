@@ -12,13 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 
-/**
- * Crea un usuario ADMIN al arrancar la app si todavía no existe.
- * Resuelve el problema del "huevo y la gallina": sin esto no habría forma
- * de que nazca el primer administrador (el registro solo da USER o VENDOR).
- *
- * Las credenciales se configuran en application.properties.
- */
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializer {
@@ -36,7 +29,7 @@ public class DataInitializer {
     public CommandLineRunner seedAdmin() {
         return args -> {
             if (userRepository.findByEmail(adminEmail).isPresent()) {
-                return; // el admin ya existe, no hacemos nada
+                return;
             }
 
             User admin = User.builder()

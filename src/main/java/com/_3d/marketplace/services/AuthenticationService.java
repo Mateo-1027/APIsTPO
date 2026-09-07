@@ -1,7 +1,5 @@
 package com._3d.marketplace.services;
 
-
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,8 +32,6 @@ public class AuthenticationService {
                                         "Ya existe un usuario registrado con el email: " + request.getEmail());
                 }
 
-                // El usuario puede elegir USER o VENDOR. Cualquier otro valor
-                // (incluido ADMIN o null) se fuerza a USER por seguridad.
                 Role requestedRole = request.getRole();
                 Role assignedRole = (requestedRole == Role.VENDOR) ? Role.VENDOR : Role.USER;
 

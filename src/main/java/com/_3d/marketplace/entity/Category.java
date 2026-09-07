@@ -1,6 +1,7 @@
 package com._3d.marketplace.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
@@ -30,4 +31,7 @@ public class Category {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Product> products;
+
+    @ColumnDefault("true")
+    private boolean active = true;
 }

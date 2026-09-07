@@ -27,11 +27,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
-    
+
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -55,6 +56,7 @@ public class ProductServiceImpl implements ProductService {
             if (maxPrice != null) {
                 filters.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
             }
+            filters.add(cb.isTrue(root.get("active")));
             return cb.and(filters.toArray(new Predicate[0]));
         };
         return productRepository.findAll(spec, pageable).map(this::mapToResponse);
@@ -62,18 +64,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponse> getProductsBySeller(Long sellerId, Pageable pageable) {
-        return productRepository.findBySellerId(sellerId, pageable).map(this::mapToResponse);
+        return productRepository.findBySellerIdAndActiveTrue(sellerId, pageable).map(this::mapToResponse);
     }
 
     @Override
     public ProductResponse getProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+        Product product = findActive(id);
         return mapToResponse(product);
     }
 
     @Override
-    @Transactional
     public ProductResponse createProduct(ProductRequest request, User seller) {
         Product product = new Product();
         mapToEntity(request, product);
@@ -83,27 +83,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request, User user) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+        Product product = findActive(id);
         checkOwnership(product, user);
         mapToEntity(request, product);
         return mapToResponse(productRepository.save(product));
     }
 
     @Override
-    @Transactional
     public void deleteProduct(Long id, User user) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+        Product product = findActive(id);
         checkOwnership(product, user);
-        productRepository.delete(product);
+        product.setActive(false);
+        productRepository.save(product);
     }
 
-    /**
-     * Solo el vendedor que publicó el producto (o un ADMIN) puede modificarlo o borrarlo.
-     */
+    private Product findActive(Long id) {
+        return productRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+    }
+
     private void checkOwnership(Product product, User user) {
         boolean isAdmin = user.getRoles().contains(Role.ADMIN);
         boolean isOwner = product.getSeller() != null
@@ -115,10 +114,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
-    public ProductResponse updateStock(Long id, Integer quantity) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+    public ProductResponse updateStock(Long id, Integer quantity, User user) {
+        Product product = findActive(id);
+        checkOwnership(product, user);
         int newStock = product.getStock() + quantity;
         if (newStock < 0) {
             throw new IllegalArgumentException("El stock no puede quedar negativo. Stock actual: " + product.getStock());
@@ -128,10 +126,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
-    public ProductResponse applyDiscount(Long id, Double discount) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id));
+    public ProductResponse applyDiscount(Long id, Double discount, User user) {
+        Product product = findActive(id);
+        checkOwnership(product, user);
         validateDiscount(discount);
         product.setDiscount(discount);
         return mapToResponse(productRepository.save(product));
@@ -185,11 +182,11 @@ public class ProductServiceImpl implements ProductService {
             product.setDiscount(request.getDiscount());
         }
         if (request.getCategoryId() != null) {
-            Category category = categoryRepository.findById(request.getCategoryId())
+            Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
                     .orElseThrow(() -> new CategoryNotFoundException("La categoría no existe: " + request.getCategoryId()));
             product.setCategory(category);
         }
-        
+
         if (request.getImageUrls() != null) {
             if (product.getImages() == null) {
                 product.setImages(new ArrayList<>());
@@ -206,10 +203,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
     public ProductResponse addImageToProduct(Long productId, MultipartFile file, User user) throws IOException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado"));
+        Product product = findActive(productId);
 
         checkOwnership(product, user);
 
@@ -226,10 +221,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
     public ProductResponse deleteProductImage(Long productId, Long imageId, User user) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + productId));
+        Product product = findActive(productId);
 
         checkOwnership(product, user);
 

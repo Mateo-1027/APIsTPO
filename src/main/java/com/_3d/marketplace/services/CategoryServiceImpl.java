@@ -1,6 +1,7 @@
 package com._3d.marketplace.services;
 
 import com._3d.marketplace.entity.Category;
+import com._3d.marketplace.entity.Product;
 import com._3d.marketplace.entity.dto.CategoryResponse;
 
 import com._3d.marketplace.exceptions.CategoryDuplicateException;
@@ -19,16 +20,15 @@ import java.util.Optional;
 @Service
 public class CategoryServiceImpl implements CategoryService{
 
-
     @Autowired
     private CategoryRepository categoryRepository;
 
     public Page<CategoryResponse> getCategories(PageRequest pageable) {
-        return categoryRepository.findAll(pageable).map(CategoryResponse::from);
+        return categoryRepository.findByActiveTrue(pageable).map(CategoryResponse::from);
     }
 
     public Optional<CategoryResponse> getCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId).map(CategoryResponse::from);
+        return categoryRepository.findByIdAndActiveTrue(categoryId).map(CategoryResponse::from);
     }
 
     public CategoryResponse createCategory(String description) throws CategoryDuplicateException {
@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Transactional
     public CategoryResponse updateCategory(Long categoryId, String description) throws CategoryDuplicateException {
-        Category category = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findByIdAndActiveTrue(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("No se encontró la categoría con el id: " + categoryId));
 
         boolean taken = categoryRepository.findByDescription(description).stream()
@@ -54,12 +54,13 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Transactional
     public void deleteCategory(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findByIdAndActiveTrue(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("No se encontró la categoría con el id: " + categoryId));
 
-        if (category.getProducts() != null && !category.getProducts().isEmpty())
+        if (category.getProducts() != null && category.getProducts().stream().anyMatch(Product::isActive))
             throw new CategoryInUseException("No se puede eliminar una categoría que tiene productos asociados.");
 
-        categoryRepository.delete(category);
+        category.setActive(false);
+        categoryRepository.save(category);
     }
 }

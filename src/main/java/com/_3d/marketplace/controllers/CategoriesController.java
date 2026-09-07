@@ -31,7 +31,6 @@ public class CategoriesController {
 
     }
 
-
     @GetMapping("/{categoryId}")
     public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long categoryId) {
         Optional<CategoryResponse> result = categoryService.getCategoryById(categoryId);

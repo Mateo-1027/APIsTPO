@@ -13,6 +13,7 @@ import com._3d.marketplace.exceptions.ForbiddenOperationException;
 import com._3d.marketplace.exceptions.EmptyCartException;
 import com._3d.marketplace.exceptions.InsufficientStockException;
 import com._3d.marketplace.exceptions.OrderNotFoundException;
+import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.repositories.OrderRepository;
 import com._3d.marketplace.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +54,13 @@ public class OrderServiceImpl implements OrderService {
 
         for (ItemCart item : cart.getItems()) {
             Product product = item.getProduct();
+            if (!product.isActive()) {
+                throw new ProductNotFoundException("El producto ya no está disponible: " + product.getName());
+            }
             if (product.getStock() < item.getQuantity()) {
                 throw new InsufficientStockException("No hay suficiente stock para el producto: " + product.getName());
             }
 
-            // Deduct stock
             product.setStock(product.getStock() - item.getQuantity());
             productRepository.save(product);
 
@@ -65,18 +68,18 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(item.getQuantity());
-            
+
             Double effectivePrice = product.getPrice() * (1 - (product.getDiscount() != null ? product.getDiscount() : 0.0) / 100);
             orderItem.setUnitPrice(effectivePrice);
             orderItem.setSubtotal(effectivePrice * item.getQuantity());
-            
+
             order.getItems().add(orderItem);
             total += orderItem.getSubtotal();
         }
 
         order.setTotal(total);
         Order savedOrder = orderRepository.save(order);
-        
+
         cartService.clearCart(user);
 
         return mapToResponse(savedOrder);

@@ -9,7 +9,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpStatus;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -17,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity // Comentado temporalmente para permitir todos los endpoints sin restricciones
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -29,11 +31,10 @@ public class SecurityConfig {
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> req
-                                                .anyRequest().permitAll() // Permitir todos los endpoints temporalmente
-                                                /*
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
+                                                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                                                .requestMatchers("/error").permitAll()
 
-                                                // Endpoints específicos de vendedor (antes que los GET públicos)
                                                 .requestMatchers(HttpMethod.GET, "/products/mine")
                                                 .hasAnyRole("ADMIN", "VENDOR")
                                                 .requestMatchers(HttpMethod.POST, "/products/estimate-price")
@@ -44,19 +45,17 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/categories", "/categories/**")
                                                 .permitAll()
 
-                                                .requestMatchers(HttpMethod.POST, "/products").hasAnyRole("ADMIN", "VENDOR")
-                                                .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "VENDOR")
-                                                .requestMatchers(HttpMethod.PATCH, "/products/**").hasAnyRole("ADMIN", "VENDOR")
-                                                .requestMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("ADMIN", "VENDOR")
+                                                .requestMatchers("/products/**").hasAnyRole("ADMIN", "VENDOR")
+                                                .requestMatchers("/categories/**").hasRole("ADMIN")
 
-                                                .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
-
+                                                .requestMatchers(HttpMethod.GET, "/orders/sales")
+                                                .hasAnyRole("ADMIN", "VENDOR")
                                                 .requestMatchers("/cart/**", "/orders/**").authenticated()
 
-                                                .anyRequest().authenticated()
-                                                */
-                                )
+                                                .anyRequest().authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                                .exceptionHandling(e -> e.authenticationEntryPoint(
+                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

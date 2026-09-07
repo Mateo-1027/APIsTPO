@@ -9,10 +9,6 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Manejo centralizado de errores: traduce las excepciones de dominio
- * a respuestas HTTP con un cuerpo JSON claro, en vez de un 500 seco.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

@@ -5,16 +5,6 @@ import com._3d.marketplace.entity.dto.PriceEstimateResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-/**
- * Tasación de referencia para impresiones 3D.
- *
- * Fórmula: precioSugerido = (costoMaterial + costoTiempo) + margen
- *   costoMaterial = (gramos / 1000) * precioPorKg(material)
- *   costoTiempo   = horasDeImpresion * costoPorHora   (luz + desgaste de máquina)
- *   margen        = costoProduccion * (margen% / 100)
- *
- * costoPorHora y margen por defecto son configurables desde application.properties.
- */
 @Service
 public class PricingServiceImpl implements PricingService {
 

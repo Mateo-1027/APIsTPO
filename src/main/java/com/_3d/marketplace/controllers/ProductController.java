@@ -46,7 +46,6 @@ public class ProductController {
                 productService.searchProducts(name, categoryId, minPrice, maxPrice, PageRequest.of(page, size)));
     }
 
-
     @GetMapping("/mine")
     public ResponseEntity<Page<ProductResponse>> getMyProducts(
             @AuthenticationPrincipal User user,
@@ -54,7 +53,6 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(productService.getProductsBySeller(user.getId(), PageRequest.of(page, size)));
     }
-
 
     @GetMapping("/materials")
     public ResponseEntity<List<Map<String, Object>>> getMaterials() {
@@ -99,13 +97,19 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProductResponse> updateStock(@PathVariable Long id, @RequestParam Integer quantity) {
-        return ResponseEntity.ok(productService.updateStock(id, quantity));
+    public ResponseEntity<ProductResponse> updateStock(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long id,
+            @RequestParam Integer quantity) {
+        return ResponseEntity.ok(productService.updateStock(id, quantity, user));
     }
 
     @PatchMapping("/{id}/discount")
-    public ResponseEntity<ProductResponse> applyDiscount(@PathVariable Long id, @RequestParam Double discount) {
-        return ResponseEntity.ok(productService.applyDiscount(id, discount));
+    public ResponseEntity<ProductResponse> applyDiscount(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long id,
+            @RequestParam Double discount) {
+        return ResponseEntity.ok(productService.applyDiscount(id, discount, user));
     }
 
     @PostMapping(value = "/{productId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

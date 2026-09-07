@@ -1,6 +1,7 @@
 package com._3d.marketplace.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
@@ -44,4 +45,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images;
+
+    @ColumnDefault("true")
+    private boolean active = true;
 }

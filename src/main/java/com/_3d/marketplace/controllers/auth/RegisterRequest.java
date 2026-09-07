@@ -16,7 +16,5 @@ public class RegisterRequest {
     private String lastname;
     private String email;
     private String password;
-    // Opcional: el usuario puede elegir registrarse como USER o VENDOR.
-    // Si no viene, o si intenta pedir ADMIN, se asigna USER por seguridad.
     private Role role;
 }

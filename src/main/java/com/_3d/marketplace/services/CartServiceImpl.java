@@ -58,7 +58,7 @@ public class CartServiceImpl implements CartService {
         if (request.getQuantity() == null || request.getQuantity() <= 0) {
             throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
         }
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findByIdAndActiveTrue(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("El producto no existe"));
 
         if (product.getStock() < request.getQuantity()) {
