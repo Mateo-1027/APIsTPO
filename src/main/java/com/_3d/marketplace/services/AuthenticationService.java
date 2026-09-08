@@ -28,8 +28,7 @@ public class AuthenticationService {
 
         public AuthenticationResponse register(RegisterRequest request) {
                 if (repository.findByEmail(request.getEmail()).isPresent()) {
-                        throw new EmailAlreadyUsedException(
-                                        "Ya existe un usuario registrado con el email: " + request.getEmail());
+                        throw new EmailAlreadyUsedException("No se pudo completar el registro");
                 }
 
                 Role requestedRole = request.getRole();
