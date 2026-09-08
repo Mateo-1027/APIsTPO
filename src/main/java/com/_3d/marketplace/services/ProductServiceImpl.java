@@ -182,19 +182,17 @@ public class ProductServiceImpl implements ProductService {
             validateDiscount(request.getDiscount());
             product.setDiscount(request.getDiscount());
         }
-        if (request.getCategoryId() != null) {
-            Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                    .orElseThrow(() -> new CategoryNotFoundException("La categoría no existe: " + request.getCategoryId()));
-            product.setCategory(category);
+        if (request.getCategoryId() == null) {
+            throw new IllegalArgumentException("La categoría es obligatoria.");
         }
+        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
+                .orElseThrow(() -> new CategoryNotFoundException("La categoría no existe: " + request.getCategoryId()));
+        product.setCategory(category);
 
         if (request.getImageUrls() != null) {
             if (product.getImages() == null) {
                 product.setImages(new ArrayList<>());
             } else {
-                // ponytail: reemplazar imageUrls por PUT sigue dejando el asset en Cloudinary.
-                // Borrarlo aca es riesgoso (el cliente suele reenviar las mismas URLs y las
-                // recrea sin publicId). Si molesta, mover la carga de imagenes a su propio endpoint.
                 product.getImages().clear();
             }
             for (String url : request.getImageUrls()) {

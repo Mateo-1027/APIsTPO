@@ -52,6 +52,9 @@ public class SecurityConfig {
                                                 .hasAnyRole("ADMIN", "VENDOR")
                                                 .requestMatchers("/cart/**", "/orders/**").authenticated()
 
+                                                .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
+                                                .requestMatchers("/users/**").hasRole("ADMIN")
+
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                                 .exceptionHandling(e -> e.authenticationEntryPoint(

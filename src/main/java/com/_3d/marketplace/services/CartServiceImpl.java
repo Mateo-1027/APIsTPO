@@ -34,8 +34,12 @@ public class CartServiceImpl implements CartService {
     private ProductRepository productRepository;
 
     @Override
+    @Transactional
     public CartResponse getCart(User user) {
-        return mapToResponse(getRawCart(user));
+        Cart cart = getRawCart(user);
+        cart.getItems().forEach(item -> item.setSubtotal(calculateSubtotal(item.getProduct(), item.getQuantity())));
+        recalculateTotal(cart);
+        return mapToResponse(cart);
     }
 
     @Override
