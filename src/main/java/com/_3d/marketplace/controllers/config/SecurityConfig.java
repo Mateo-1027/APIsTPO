@@ -54,8 +54,8 @@ public class SecurityConfig {
 
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                                .exceptionHandling(e -> e.authenticationEntryPoint(
-                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                                //.exceptionHandling(e -> e.authenticationEntryPoint(
+                                                //new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
