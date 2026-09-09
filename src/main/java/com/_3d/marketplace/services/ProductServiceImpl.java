@@ -118,6 +118,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateStock(Long id, Integer quantity, User user) {
         Product product = findActive(id);
         checkOwnership(product, user);
+        if (quantity == null) {
+            throw new IllegalArgumentException("La cantidad es obligatoria.");
+        }
         int newStock = product.getStock() + quantity;
         if (newStock < 0) {
             throw new IllegalArgumentException("El stock no puede quedar negativo. Stock actual: " + product.getStock());

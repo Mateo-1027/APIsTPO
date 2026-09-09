@@ -99,6 +99,10 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElseThrow(() -> new CartNotFoundException("El artículo no se encuentra en el carrito"));
 
+        if (quantity == null) {
+            throw new IllegalArgumentException("La cantidad es obligatoria.");
+        }
+
         if (quantity <= 0) {
             return removeItemFromCart(user, itemId);
         }
@@ -160,6 +164,9 @@ public class CartServiceImpl implements CartService {
         }).collect(Collectors.toList());
 
         response.setItems(items);
+        if (items.isEmpty()) {
+            response.setMessage("Tu carrito está vacío.");
+        }
         return response;
     }
 }

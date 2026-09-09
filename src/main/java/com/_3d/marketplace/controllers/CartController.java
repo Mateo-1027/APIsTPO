@@ -1,6 +1,7 @@
 package com._3d.marketplace.controllers;
 
 import com._3d.marketplace.entity.User;
+import com._3d.marketplace.entity.dto.CartItemQuantityRequest;
 import com._3d.marketplace.entity.dto.CartItemRequest;
 import com._3d.marketplace.entity.dto.CartResponse;
 import com._3d.marketplace.services.CartService;
@@ -30,8 +31,8 @@ public class CartController {
     public ResponseEntity<CartResponse> updateItemQuantity(
             @AuthenticationPrincipal User user,
             @PathVariable Long itemId,
-            @RequestParam Integer quantity) {
-        return ResponseEntity.ok(cartService.updateItemQuantity(user, itemId, quantity));
+            @RequestBody CartItemQuantityRequest request) {
+        return ResponseEntity.ok(cartService.updateItemQuantity(user, itemId, request.getQuantity()));
     }
 
     @DeleteMapping("/items/{itemId}")

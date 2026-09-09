@@ -2,10 +2,12 @@ package com._3d.marketplace.controllers;
 
 import com._3d.marketplace.entity.Material;
 import com._3d.marketplace.entity.User;
+import com._3d.marketplace.entity.dto.DiscountRequest;
 import com._3d.marketplace.entity.dto.PriceEstimateRequest;
 import com._3d.marketplace.entity.dto.PriceEstimateResponse;
 import com._3d.marketplace.entity.dto.ProductRequest;
 import com._3d.marketplace.entity.dto.ProductResponse;
+import com._3d.marketplace.entity.dto.StockRequest;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.services.PricingService;
 import com._3d.marketplace.services.ProductService;
@@ -100,16 +102,16 @@ public class ProductController {
     public ResponseEntity<ProductResponse> updateStock(
             @AuthenticationPrincipal User user,
             @PathVariable Long id,
-            @RequestParam Integer quantity) {
-        return ResponseEntity.ok(productService.updateStock(id, quantity, user));
+            @RequestBody StockRequest request) {
+        return ResponseEntity.ok(productService.updateStock(id, request.getQuantity(), user));
     }
 
     @PatchMapping("/{id}/discount")
     public ResponseEntity<ProductResponse> applyDiscount(
             @AuthenticationPrincipal User user,
             @PathVariable Long id,
-            @RequestParam Double discount) {
-        return ResponseEntity.ok(productService.applyDiscount(id, discount, user));
+            @RequestBody DiscountRequest request) {
+        return ResponseEntity.ok(productService.applyDiscount(id, request.getDiscount(), user));
     }
 
     @PostMapping(value = "/{productId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

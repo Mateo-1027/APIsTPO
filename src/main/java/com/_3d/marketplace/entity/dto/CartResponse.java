@@ -1,5 +1,6 @@
 package com._3d.marketplace.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import java.util.List;
 
@@ -9,4 +10,6 @@ public class CartResponse {
     private String email;
     private List<CartItemResponse> items;
     private Double total;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String message;
 }
