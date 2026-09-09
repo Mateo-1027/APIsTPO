@@ -7,7 +7,7 @@ import com._3d.marketplace.exceptions.CategoryNotFoundException;
 import com._3d.marketplace.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +21,8 @@ public class CategoriesController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<Page<CategoryResponse>> getCategories(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2147483647") int size) {
-        return ResponseEntity.ok(categoryService.getCategories(PageRequest.of(page, size)));
+    public ResponseEntity<Page<CategoryResponse>> getCategories(Pageable pageable) {
+        return ResponseEntity.ok(categoryService.getCategories(pageable));
     }
 
     @GetMapping("/{categoryId}")

@@ -10,7 +10,7 @@ import com._3d.marketplace.services.PricingService;
 import com._3d.marketplace.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,19 +39,17 @@ public class ProductController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            Pageable pageable) {
 
         return ResponseEntity.ok(
-                productService.searchProducts(name, categoryId, minPrice, maxPrice, PageRequest.of(page, size)));
+                productService.searchProducts(name, categoryId, minPrice, maxPrice, pageable));
     }
 
     @GetMapping("/mine")
     public ResponseEntity<Page<ProductResponse>> getMyProducts(
             @AuthenticationPrincipal User user,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(productService.getProductsBySeller(user.getId(), PageRequest.of(page, size)));
+            Pageable pageable) {
+        return ResponseEntity.ok(productService.getProductsBySeller(user.getId(), pageable));
     }
 
     @GetMapping("/materials")
