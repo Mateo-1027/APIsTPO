@@ -37,7 +37,6 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/roles/{role}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> assignRole(@PathVariable Long userId, @PathVariable Role role) {
         userService.assignRole(userId, role);
         return ResponseEntity.ok().build();
