@@ -12,7 +12,6 @@ import com._3d.marketplace.entity.dto.OrderResponse;
 import com._3d.marketplace.exceptions.ForbiddenOperationException;
 import com._3d.marketplace.exceptions.EmptyCartException;
 import com._3d.marketplace.exceptions.InsufficientStockException;
-import com._3d.marketplace.exceptions.OrderNotFoundException;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.repositories.OrderRepository;
 import com._3d.marketplace.repositories.ProductRepository;
@@ -22,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,16 +96,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderResponse getOrderById(Long orderId, User user) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("No se encontró la orden con el id: " + orderId));
+    public Optional<OrderResponse> getOrderById(Long orderId, User user) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        order.ifPresent(found -> checkAccess(found, user));
+        return order.map(this::mapToResponse);
+    }
 
+    private void checkAccess(Order order, User user) {
         boolean isAdmin = user.getRoles().contains(Role.ADMIN);
         if (!isAdmin && !order.getUser().getId().equals(user.getId())) {
             throw new ForbiddenOperationException("No tenés permiso para ver una orden que no es tuya.");
         }
-
-        return mapToResponse(order);
     }
 
     @Override

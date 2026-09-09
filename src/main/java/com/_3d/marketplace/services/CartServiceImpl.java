@@ -11,7 +11,6 @@ import com._3d.marketplace.exceptions.CartNotFoundException;
 import com._3d.marketplace.exceptions.InsufficientStockException;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.repositories.CartRepository;
-import com._3d.marketplace.repositories.ItemCartRepository;
 import com._3d.marketplace.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,6 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
-
-    @Autowired
-    private ItemCartRepository itemCartRepository;
 
     @Autowired
     private ProductRepository productRepository;

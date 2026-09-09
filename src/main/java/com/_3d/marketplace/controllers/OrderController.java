@@ -2,6 +2,7 @@ package com._3d.marketplace.controllers;
 
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.OrderResponse;
+import com._3d.marketplace.exceptions.OrderNotFoundException;
 import com._3d.marketplace.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrder(@AuthenticationPrincipal User user, @PathVariable Long id) {
-        return ResponseEntity.ok(orderService.getOrderById(id, user));
+        return ResponseEntity.ok(orderService.getOrderById(id, user)
+                .orElseThrow(() -> new OrderNotFoundException("No se encontró la orden con el id: " + id)));
     }
 }

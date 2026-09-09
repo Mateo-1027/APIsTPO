@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,9 +70,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getProductById(Long id) {
-        Product product = findActive(id);
-        return mapToResponse(product);
+    public Optional<ProductResponse> getProductById(Long id) {
+        return productRepository.findByIdAndActiveTrue(id).map(this::mapToResponse);
     }
 
     @Override

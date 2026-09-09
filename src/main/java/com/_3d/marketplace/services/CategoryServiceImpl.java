@@ -23,22 +23,26 @@ public class CategoryServiceImpl implements CategoryService{
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Override
     public Page<CategoryResponse> getCategories(Pageable pageable) {
-        return categoryRepository.findByActiveTrue(pageable).map(CategoryResponse::from);
+        return categoryRepository.findByActiveTrue(pageable).map(this::mapToResponse);
     }
 
+    @Override
     public Optional<CategoryResponse> getCategoryById(Long categoryId) {
-        return categoryRepository.findByIdAndActiveTrue(categoryId).map(CategoryResponse::from);
+        return categoryRepository.findByIdAndActiveTrue(categoryId).map(this::mapToResponse);
     }
 
+    @Override
     public CategoryResponse createCategory(String description) throws CategoryDuplicateException {
         List<Category> categories = categoryRepository.findByDescription(description);
         if(categories.isEmpty())
-            return CategoryResponse.from(categoryRepository.save(new Category(description)));
+            return mapToResponse(categoryRepository.save(new Category(description)));
         throw new CategoryDuplicateException();
     }
 
     @Transactional
+    @Override
     public CategoryResponse updateCategory(Long categoryId, String description) throws CategoryDuplicateException {
         Category category = categoryRepository.findByIdAndActiveTrue(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("No se encontró la categoría con el id: " + categoryId));
@@ -49,10 +53,11 @@ public class CategoryServiceImpl implements CategoryService{
             throw new CategoryDuplicateException();
 
         category.setDescription(description);
-        return CategoryResponse.from(categoryRepository.save(category));
+        return mapToResponse(categoryRepository.save(category));
     }
 
     @Transactional
+    @Override
     public void deleteCategory(Long categoryId) {
         Category category = categoryRepository.findByIdAndActiveTrue(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("No se encontró la categoría con el id: " + categoryId));
@@ -62,5 +67,12 @@ public class CategoryServiceImpl implements CategoryService{
 
         category.setActive(false);
         categoryRepository.save(category);
+    }
+
+    private CategoryResponse mapToResponse(Category category) {
+        CategoryResponse response = new CategoryResponse();
+        response.setId(category.getId());
+        response.setDescription(category.getDescription());
+        return response;
     }
 }

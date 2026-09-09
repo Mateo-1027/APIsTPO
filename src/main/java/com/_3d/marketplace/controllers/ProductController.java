@@ -6,6 +6,7 @@ import com._3d.marketplace.entity.dto.PriceEstimateRequest;
 import com._3d.marketplace.entity.dto.PriceEstimateResponse;
 import com._3d.marketplace.entity.dto.ProductRequest;
 import com._3d.marketplace.entity.dto.ProductResponse;
+import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.services.PricingService;
 import com._3d.marketplace.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,8 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProductById(id));
+        return ResponseEntity.ok(productService.getProductById(id)
+                .orElseThrow(() -> new ProductNotFoundException("No se encontró el producto con el id: " + id)));
     }
 
     @PostMapping
