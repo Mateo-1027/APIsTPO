@@ -1,6 +1,7 @@
 package com._3d.marketplace.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -57,6 +58,10 @@ public class User implements UserDetails {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @ColumnDefault("true")
+    @Builder.Default
+    private boolean active = true;
+
     @Override
     public String getUsername() {
         return email;
@@ -67,5 +72,10 @@ public class User implements UserDetails {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .toList();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
     }
 }
