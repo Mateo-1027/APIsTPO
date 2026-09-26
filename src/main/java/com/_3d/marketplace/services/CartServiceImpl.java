@@ -92,39 +92,54 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse updateItemQuantity(User user, Long itemId, Integer quantity) {
+    public CartResponse updateItemQuantity(User user, CartItemRequest request) {
         Cart cart = getRawCart(user);
-        ItemCart item = cart.getItems().stream()
-                .filter(i -> i.getId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> new CartNotFoundException("El artículo no se encuentra en el carrito"));
 
-        if (quantity == null) {
-            throw new IllegalArgumentException("La cantidad es obligatoria.");
-        }
+    // 1. Buscamos el ítem usando el ID de producto que viene en la request
+    ItemCart item = cart.getItems().stream()
+            .filter(i -> i.getProduct().getId().equals(request.getProductId()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("El artículo no se encuentra en el carrito"));
 
-        if (quantity <= 0) {
-            return removeItemFromCart(user, itemId);
-        }
+    int newQuantity = request.getQuantity();
 
-        if (item.getProduct().getStock() < quantity) {
-            throw new InsufficientStockException("No hay suficiente stock para el producto: " + item.getProduct().getName());
-        }
-
-        item.setQuantity(quantity);
-        item.setSubtotal(calculateSubtotal(item.getProduct(), quantity));
-        recalculateTotal(cart);
-        return mapToResponse(cartRepository.save(cart));
+    // 2. Si la cantidad enviada es <= 0, delegamos a la eliminación del ítem
+    if (newQuantity <= 0) {
+        return removeItemFromCart(user, request);
     }
+
+    // 3. Validamos stock disponible
+    if (item.getProduct().getStock() < newQuantity) {
+        throw new InsufficientStockException("No hay suficiente stock para el producto: " + item.getProduct().getName());
+    }
+
+    // 4. Actualizamos cantidad y subtotal
+    item.setQuantity(newQuantity);
+    item.setSubtotal(calculateSubtotal(item.getProduct(), newQuantity));
+
+    // 5. Recalculamos total global del carrito y guardamos
+    recalculateTotal(cart);
+    return mapToResponse(cartRepository.save(cart));
+}
 
     @Override
     @Transactional
-    public CartResponse removeItemFromCart(User user, Long itemId) {
+    public CartResponse removeItemFromCart(User user,  CartItemRequest request) {
         Cart cart = getRawCart(user);
-        cart.getItems().removeIf(item -> item.getId().equals(itemId));
-        recalculateTotal(cart);
-        return mapToResponse(cartRepository.save(cart));
+
+    // Elimina de la colección el ítem cuyo productId coincida con el del request
+    boolean removed = cart.getItems().removeIf(item -> 
+        item.getProduct().getId().equals(request.getProductId())
+    );
+
+    if (!removed) {
+        throw new ProductNotFoundException("El producto no existía en el carrito");
     }
+
+    recalculateTotal(cart);
+    return mapToResponse(cartRepository.save(cart));
+
+}
 
     @Override
     @Transactional
@@ -170,3 +185,9 @@ public class CartServiceImpl implements CartService {
         return response;
     }
 }
+
+
+
+
+
+

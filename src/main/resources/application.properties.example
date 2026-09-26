@@ -2,8 +2,8 @@ spring.application.name=marketplace
 
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce_3d
-spring.datasource.username=TU_USUARIO
-spring.datasource.password=TU_PASSWORD
+spring.datasource.username=postgre
+spring.datasource.password=lau1234
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.hibernate.ddl-auto=update
