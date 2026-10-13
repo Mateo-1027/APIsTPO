@@ -15,6 +15,12 @@ import org.springframework.http.HttpStatus;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import java.util.List;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -29,6 +35,7 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> req
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
@@ -64,5 +71,17 @@ public class SecurityConfig {
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(List.of("http://localhost:5173"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
         }
 }
