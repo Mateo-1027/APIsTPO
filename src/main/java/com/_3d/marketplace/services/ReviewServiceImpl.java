@@ -2,11 +2,14 @@ package com._3d.marketplace.services;
 
 import com._3d.marketplace.entity.Product;
 import com._3d.marketplace.entity.Review;
+import com._3d.marketplace.entity.Role;
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.ReviewRequest;
 import com._3d.marketplace.entity.dto.ReviewResponse;
+import com._3d.marketplace.exceptions.ForbiddenOperationException;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
 import com._3d.marketplace.exceptions.ReviewNotAllowedException;
+import com._3d.marketplace.exceptions.ReviewNotFoundException;
 import com._3d.marketplace.exceptions.UserNotFoundException;
 import com._3d.marketplace.repositories.OrderRepository;
 import com._3d.marketplace.repositories.ProductRepository;
@@ -94,6 +97,20 @@ public class ReviewServiceImpl implements ReviewService {
         return mapToResponse(reviewRepository.save(review));
     }
 
+    @Override
+    @Transactional
+    public void deleteReview(Long reviewId, User user) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("No se encontró la reseña con el id: " + reviewId));
+
+        boolean isAdmin = user.getRoles().contains(Role.ADMIN);
+        boolean isAuthor = review.getAuthor().getId().equals(user.getId());
+        if (!isAdmin && !isAuthor) {
+            throw new ForbiddenOperationException("No podés eliminar una reseña que no escribiste.");
+        }
+        reviewRepository.delete(review);
+    }
+
     private void validate(ReviewRequest request) {
         if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
             throw new IllegalArgumentException("La calificación tiene que ser de 1 a 5 estrellas.");
@@ -118,6 +135,7 @@ public class ReviewServiceImpl implements ReviewService {
         response.setRating(review.getRating());
         response.setComment(review.getComment());
         response.setDate(review.getDate());
+        response.setAuthorId(review.getAuthor().getId());
         response.setAuthorName(review.getAuthor().getName());
         return response;
     }

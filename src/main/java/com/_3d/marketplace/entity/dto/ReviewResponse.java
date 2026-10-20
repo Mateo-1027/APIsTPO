@@ -10,5 +10,6 @@ public class ReviewResponse {
     private Integer rating;
     private String comment;
     private LocalDateTime date;
+    private Long authorId;
     private String authorName;
 }

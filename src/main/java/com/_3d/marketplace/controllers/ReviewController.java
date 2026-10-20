@@ -43,4 +43,12 @@ public class ReviewController {
             @RequestBody ReviewRequest request) {
         return ResponseEntity.ok(reviewService.createSellerReview(sellerId, request, user));
     }
+
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long reviewId) {
+        reviewService.deleteReview(reviewId, user);
+        return ResponseEntity.noContent().build();
+    }
 }

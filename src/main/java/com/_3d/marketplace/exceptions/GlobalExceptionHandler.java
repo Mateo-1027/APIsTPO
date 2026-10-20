@@ -14,7 +14,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({ProductNotFoundException.class, UserNotFoundException.class, CartNotFoundException.class,
-            OrderNotFoundException.class, CategoryNotFoundException.class})
+            OrderNotFoundException.class, CategoryNotFoundException.class, ReviewNotFoundException.class})
     public ResponseEntity<Object> handleNotFound(RuntimeException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
