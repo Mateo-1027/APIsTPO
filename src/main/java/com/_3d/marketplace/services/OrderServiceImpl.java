@@ -147,6 +147,7 @@ public class OrderServiceImpl implements OrderService {
         OrderItemResponse response = new OrderItemResponse();
         response.setProductId(item.getProduct().getId());
         response.setProductName(item.getProduct().getName());
+        response.setProductActive(item.getProduct().isActive());
         response.setQuantity(item.getQuantity());
         response.setUnitPrice(item.getUnitPrice());
         response.setSubtotal(item.getSubtotal());
