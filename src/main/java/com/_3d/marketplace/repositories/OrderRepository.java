@@ -12,4 +12,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserOrderByDateDesc(User user);
 
     List<Order> findDistinctByItems_Product_Seller_IdOrderByDateDesc(Long sellerId);
+
+    boolean existsByUserIdAndItems_Product_Id(Long userId, Long productId);
+
+    boolean existsByUserIdAndItems_Product_Seller_Id(Long userId, Long sellerId);
 }

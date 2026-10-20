@@ -9,4 +9,6 @@ public class OrderItemResponse {
     private Integer quantity;
     private Double unitPrice;
     private Double subtotal;
+    private Long sellerId;
+    private String sellerName;
 }

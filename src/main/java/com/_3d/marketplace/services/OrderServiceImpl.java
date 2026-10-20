@@ -150,5 +150,9 @@ public class OrderServiceImpl implements OrderService {
         response.setQuantity(item.getQuantity());
         response.setUnitPrice(item.getUnitPrice());
         response.setSubtotal(item.getSubtotal());
+        if (item.getProduct().getSeller() != null) {
+            response.setSellerId(item.getProduct().getSeller().getId());
+            response.setSellerName(item.getProduct().getSeller().getName());
+        }
         return response;
     }}

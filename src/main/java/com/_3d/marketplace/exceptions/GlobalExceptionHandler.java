@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({CategoryDuplicateException.class, EmailAlreadyUsedException.class, InsufficientStockException.class,
-            CategoryInUseException.class, EmptyCartException.class})
+            CategoryInUseException.class, EmptyCartException.class, ReviewNotAllowedException.class})
     public ResponseEntity<Object> handleConflict(Exception ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
