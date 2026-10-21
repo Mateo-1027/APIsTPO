@@ -57,6 +57,9 @@ public class OrderServiceImpl implements OrderService {
             if (!product.isActive()) {
                 throw new ProductNotFoundException("El producto ya no está disponible: " + product.getName());
             }
+            if (product.getSeller() != null && product.getSeller().getId().equals(user.getId())) {
+                throw new IllegalArgumentException("No podés comprar tu propio producto: " + product.getName());
+            }
             if (product.getStock() < item.getQuantity()) {
                 throw new InsufficientStockException("No hay suficiente stock para el producto: " + product.getName());
             }

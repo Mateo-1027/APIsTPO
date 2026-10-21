@@ -61,6 +61,10 @@ public class CartServiceImpl implements CartService {
         Product product = productRepository.findByIdAndActiveTrue(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("El producto no existe"));
 
+        if (product.getSeller() != null && product.getSeller().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("No podés comprar tu propio producto.");
+        }
+
         if (product.getStock() < request.getQuantity()) {
             throw new InsufficientStockException("No hay suficiente stock para el producto: " + product.getName());
         }
