@@ -100,8 +100,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/roles/{role}")
-    public ResponseEntity<Void> removeRole(@PathVariable Long userId, @PathVariable Role role) {
-        userService.removeRole(userId, role);
+    public ResponseEntity<Void> removeRole(@AuthenticationPrincipal User currentUser, @PathVariable Long userId, @PathVariable Role role) {
+        userService.removeRole(currentUser, userId, role);
         return ResponseEntity.noContent().build();
     }
 }

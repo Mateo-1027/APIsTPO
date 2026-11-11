@@ -158,7 +158,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void removeRole(Long userId, Role role) {
+    public void removeRole(User currentUser, Long userId, Role role) {
+        if (currentUser.getId().equals(userId) && role == Role.ADMIN) {
+            throw new IllegalArgumentException("No podés quitarte el rol ADMIN a vos mismo.");
+        }
         User user = findById(userId);
         if (!user.getRoles().contains(role)) {
             throw new IllegalArgumentException("El usuario no tiene el rol " + role);

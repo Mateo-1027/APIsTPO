@@ -25,5 +25,5 @@ public interface UserService {
     void deactivateUser(Long userId);
     void activateUser(Long userId);
     void assignRole(Long userId, Role role);
-    void removeRole(Long userId, Role role);
+    void removeRole(User currentUser, Long userId, Role role);
 }
