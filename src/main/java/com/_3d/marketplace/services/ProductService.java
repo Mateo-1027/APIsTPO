@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface ProductService {
-    Page<ProductResponse> searchProducts(String name, Long categoryId, Double minPrice, Double maxPrice, Pageable pageable);
+    Page<ProductResponse> searchProducts(String name, Long categoryId, Double minPrice, Double maxPrice, Long sellerId, Pageable pageable);
     Page<ProductResponse> getProductsBySeller(Long sellerId, Pageable pageable);
     Optional<ProductResponse> getProductById(Long id);
     ProductResponse createProduct(ProductRequest request, User seller);

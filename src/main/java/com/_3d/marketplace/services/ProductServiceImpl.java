@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponse> searchProducts(String name, Long categoryId, Double minPrice, Double maxPrice,
-            Pageable pageable) {
+            Long sellerId, Pageable pageable) {
         Specification<Product> spec = (root, query, cb) -> {
             List<Predicate> filters = new ArrayList<>();
             if (name != null && !name.isBlank()) {
@@ -57,6 +57,9 @@ public class ProductServiceImpl implements ProductService {
             }
             if (maxPrice != null) {
                 filters.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+            }
+            if (sellerId != null) {
+                filters.add(cb.equal(root.get("seller").get("id"), sellerId));
             }
             filters.add(cb.isTrue(root.get("active")));
             return cb.and(filters.toArray(new Predicate[0]));
