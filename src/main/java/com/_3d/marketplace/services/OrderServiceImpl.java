@@ -9,7 +9,7 @@ import com._3d.marketplace.entity.Role;
 import com._3d.marketplace.entity.User;
 import com._3d.marketplace.entity.dto.OrderItemResponse;
 import com._3d.marketplace.entity.dto.OrderResponse;
-import com._3d.marketplace.exceptions.ForbiddenOperationException;
+import com._3d.marketplace.exceptions.OrderNotFoundException;
 import com._3d.marketplace.exceptions.EmptyCartException;
 import com._3d.marketplace.exceptions.InsufficientStockException;
 import com._3d.marketplace.exceptions.ProductNotFoundException;
@@ -108,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
     private void checkAccess(Order order, User user) {
         boolean isAdmin = user.getRoles().contains(Role.ADMIN);
         if (!isAdmin && !order.getUser().getId().equals(user.getId())) {
-            throw new ForbiddenOperationException("No tenés permiso para ver una orden que no es tuya.");
+            throw new OrderNotFoundException("No se encontró la orden con el id: " + order.getId());
         }
     }
 
